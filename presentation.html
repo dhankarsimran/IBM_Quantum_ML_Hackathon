@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quantum Data Encoding — UW-IBM Hackathon</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#fff;color:#1a1a2e;overflow:hidden}
+.slide{display:none;width:100vw;height:100vh;padding:48px 64px}
+.slide.active{display:flex;flex-direction:column}
+.slide h1{font-size:2.4em;font-weight:700;color:#4f46e5;margin-bottom:6px}
+.slide h2{font-size:1.6em;font-weight:600;color:#1e1b4b;margin-bottom:4px}
+.slide h3{font-size:0.95em;font-weight:500;color:#6b7280;margin-bottom:16px}
+.slide p,.slide li{font-size:0.92em;color:#374151;line-height:1.65}
+.bar{width:100%;height:4px;background:linear-gradient(90deg,#4f46e5,#7c3aed,#ec4899);margin-bottom:24px;border-radius:2px}
+.title-slide{justify-content:center;align-items:center;text-align:center;background:linear-gradient(135deg,#f5f3ff,#fff,#fdf2f8)}
+.title-slide h1{font-size:2.6em}
+.title-slide .sub{font-size:1.15em;color:#6b7280;margin-top:8px}
+.title-slide .tag{display:inline-block;background:#f3f0ff;color:#4f46e5;padding:5px 16px;border-radius:16px;font-size:0.82em;margin-top:20px;border:1px solid #e0d4fc}
+.img-box{flex:1;display:flex;justify-content:center;align-items:center;min-height:0}
+.img-box img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px}
+.two-col{display:flex;gap:28px;flex:1;min-height:0}
+.two-col>div{flex:1;display:flex;flex-direction:column;min-height:0}
+ul.b{list-style:none;margin-top:8px}
+ul.b li{padding:6px 0;padding-left:20px;position:relative;font-size:0.9em}
+ul.b li::before{content:'•';position:absolute;left:0;color:#4f46e5;font-weight:700}
+.box{padding:12px 16px;border-radius:6px;margin-top:10px;font-size:0.88em;line-height:1.6}
+.box.purple{background:#f5f3ff;border-left:3px solid #4f46e5}
+.box.green{background:#f0fdf4;border-left:3px solid #22c55e}
+.box.red{background:#fef2f2;border-left:3px solid #ef4444}
+.box.amber{background:#fffbeb;border-left:3px solid #f59e0b}
+.metrics{display:flex;gap:16px;margin:12px 0}
+.m{flex:1;background:#f5f3ff;border-radius:10px;padding:14px;text-align:center}
+.m .n{font-size:1.9em;font-weight:700;color:#4f46e5}
+.m .l{font-size:0.75em;color:#6b7280;margin-top:2px}
+.nav{position:fixed;bottom:20px;right:32px;z-index:100;display:flex;gap:8px;align-items:center}
+.nav button{background:#4f46e5;border:none;color:#fff;padding:7px 16px;border-radius:5px;cursor:pointer;font-size:12px;font-family:'Inter'}
+.nav button:hover{background:#4338ca}
+.cnt{color:#9ca3af;font-size:12px}
+.sn{position:absolute;bottom:22px;left:32px;color:#d1d5db;font-size:11px}
+.section-label{display:inline-block;background:#4f46e5;color:#fff;padding:3px 12px;border-radius:4px;font-size:0.75em;font-weight:600;margin-bottom:8px;letter-spacing:0.5px}
+.section-label.green{background:#22c55e}
+.section-label.red{background:#ef4444}
+.section-label.amber{background:#f59e0b}
+</style>
+</head>
+<body>
+
+<!-- SLIDE 1: Title -->
+<div class="slide title-slide active">
+  <h1>When Does Quantum Encoding Help?</h1>
+  <p class="sub">Projected Quantum Kernels for CAR T-Cell Cytotoxicity Prediction</p>
+  <p style="color:#4f46e5;margin-top:12px;font-weight:600;font-size:1.1em">Hugh Chow · Joshua Lee · Simran Dhankar</p>
+  <p style="color:#9ca3af;margin-top:8px;font-size:0.85em">UW-IBM Quantum Machine Learning Hackathon</p>
+  <div class="tag">60-Qubit ZZ Feature Map · RBF-SVM · scikit-learn</div>
+  <span class="sn">1</span>
+</div>
+
+<!-- SLIDE 2: EXPECTATION -->
+<div class="slide">
+  <div class="bar"></div>
+  <span class="section-label">1. EXPECTATION</span>
+  <h2>What did we expect before running experiments?</h2>
+  <h3>Our hypothesis, based on the problem structure and literature</h3>
+  <div class="two-col">
+    <div>
+      <p><strong>Why we expected quantum encoding to help:</strong></p>
+      <ul class="b">
+        <li><strong>Sparse data regime</strong> — only 246 of ~2,500 possible constructs tested (~10%). Theory says quantum encoding benefits are largest when data is scarce (Huang et al. 2021).</li>
+        <li><strong>Combinatorial structure</strong> — motifs may interact across positions. The ZZ Feature Map entangles qubits, so the encoding can depend on motif combinations, not just individual identities.</li>
+        <li><strong>Different geometry</strong> — 60 qubits → X·Y·Z measurements → 180-dim projection. The quantum kernel measures similarity differently than classical RBF on one-hot vectors.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="box purple" style="margin-top:0">
+        <strong>Our Hypothesis:</strong><br><br>
+        We expected quantum encoding to provide a <strong>modest advantage (ΔF1 ≈ 0.03–0.10)</strong> because:<br><br>
+        1. The sparse-data regime favors quantum encoding<br>
+        2. The ZZ entanglement should capture inter-position motif interactions that one-hot encoding misses<br>
+        3. The geometric difference g should be > 1, confirming different similarity structures<br><br>
+        We also expected the advantage to be <strong>larger with less training data</strong> and <strong>concentrated at data-sparse positions</strong>.
+      </div>
+    </div>
+  </div>
+  <span class="sn">2</span>
+</div>
+
+<!-- SLIDE 3: VALIDATION — Track 0 -->
+<div class="slide">
+  <div class="bar"></div>
+  <span class="section-label green">2. VALIDATION</span>
+  <h2>Track 0: Baseline — Classical vs Quantum SVM</h2>
+  <h3>Same classifier (RBF-SVM + GridSearchCV), same data, only encoding differs</h3>
+  <div class="two-col">
+    <div>
+      <div class="metrics">
+        <div class="m"><div class="n">0.7423</div><div class="l">Classical F1<br>60-dim one-hot</div></div>
+        <div class="m"><div class="n" style="color:#ec4899">0.8108</div><div class="l">Quantum F1<br>180-dim projections</div></div>
+        <div class="m"><div class="n" style="color:#22c55e">+0.069</div><div class="l">ΔF1<br>Quantum advantage</div></div>
+      </div>
+      <div class="box green">
+        <strong>✅ Expectation confirmed:</strong> Quantum encoding outperforms classical by +6.9% F1, within our predicted range.
+      </div>
+      <p style="margin-top:10px"><strong>Bonus — Geometric Difference:</strong></p>
+      <div class="metrics">
+        <div class="m"><div class="n" style="font-size:1.4em">g = 1.54</div><div class="l">Geometric diff (>1 = different)</div></div>
+        <div class="m"><div class="n" style="font-size:1.4em">s<sub>c</sub> = 1.36</div><div class="l">Classical complexity</div></div>
+        <div class="m"><div class="n" style="font-size:1.4em">s<sub>q</sub> = 1.58</div><div class="l">Quantum complexity</div></div>
+      </div>
+      <p style="font-size:0.85em;color:#6b7280;margin-top:4px">g > 1 confirms the two encodings create different similarity structures. √N = 13.1 for reference.</p>
+    </div>
+    <div>
+      <div class="img-box"><img src="presentation_images/cell_16_out_0.png"></div>
+    </div>
+  </div>
+  <span class="sn">3</span>
+</div>
+
+<!-- SLIDE 4: VALIDATION — Kernel Heatmaps -->
+<div class="slide">
+  <div class="bar"></div>
+  <span class="section-label green">2. VALIDATION</span>
+  <h2>Track 0: Kernel Heatmaps — Do the Encodings See Data Differently?</h2>
+  <h3>Kernel matrices sorted by label — checking for block-diagonal structure</h3>
+  <div class="img-box" style="flex:1">
+    <img src="presentation_images/cell_17_out_0.png">
+  </div>
+  <div class="box purple" style="margin-top:8px">
+    <strong>Classical (left):</strong> Sharp grid-like patterns from discrete one-hot values — high similarity between constructs sharing the same motif at any position.
+    <strong>Quantum (right):</strong> Smoother, more continuous similarity. Subtle block structure visible around sample ~130 where labels change. The quantum kernel reshapes how "similar" constructs look.
+  </div>
+  <span class="sn">4</span>
+</div>
+
+<!-- SLIDE 5: VALIDATION — Track 1 -->
+<div class="slide">
+  <div class="bar"></div>
+  <span class="section-label green">2. VALIDATION</span>
+  <h2>Track 1: Anatomy — What Parts of the Quantum Encoding Matter?</h2>
+  <h3>Q: Is the value concentrated or distributed? Which position benefits most?</h3>
+  <div class="two-col">
+    <div>
+      <p style="font-size:0.85em;font-weight:600;margin-bottom:4px">1A. Measurement Basis (X vs Y vs Z)</p>
+      <div class="img-box" style="flex:0 0 auto;max-height:240px"><img src="presentation_images/cell_21_out_0.png"></div>
+      <div class="box amber" style="margin-top:6px;font-size:0.82em">
+        <strong>Answer:</strong> Signal is <strong>distributed</strong> across all three bases (each gets ~0.68–0.73), but combining all three reaches 0.81. No single basis captures the full advantage.
+      </div>
+    </div>
+    <div>
+      <p style="font-size:0.85em;font-weight:600;margin-bottom:4px">1B. Per-Position Analysis (Classical vs Quantum)</p>
+      <div class="img-box" style="flex:0 0 auto;max-height:240px"><img src="presentation_images/cell_28_out_0.png"></div>
+      <div class="box amber" style="margin-top:6px;font-size:0.82em">
+        <strong>Answer:</strong> <strong>Position 2</strong> shows the largest quantum advantage (+13%). Contrary to our hypothesis, Position 3 (most sparse) favors classical. The gain depends on specific motif interactions, not just sparsity.
+      </div>
+    </div>
+  </div>
+  <span class="sn">5</span>
+</div>
+
+<!-- SLIDE 6: VALIDATION — Track 2 -->
+<div class="slide">
+  <div class="bar"></div>
+  <span class="section-label green">2. VALIDATION</span>
+  <h2>Track 2: When Does the Quantum Encoding Help?</h2>
+  <h3>Q: Does destroying combinatorial structure hurt? Does scarcity widen the gap?</h3>
+  <div class="two-col">
+    <div>
+      <p style="font-size:0.85em;font-weight:600;margin-bottom:4px">2C. Shuffle Test — Does motif arrangement matter?</p>
+      <div class="img-box" style="flex:0 0 auto;max-height:240px"><img src="presentation_images/cell_34_out_0.png"></div>
+      <div class="box green" style="margin-top:6px;font-size:0.82em">
+        <strong>Answer:</strong> Yes! Shuffling causes a <strong>30% F1 drop</strong> (0.74 → 0.44). The task depends heavily on inter-position motif relationships. The ZZ entanglement is designed to capture exactly this structure.
+      </div>
+    </div>
+    <div>
+      <p style="font-size:0.85em;font-weight:600;margin-bottom:4px">2A. Learning Curves — Does scarcity widen the gap?</p>
+      <div class="img-box" style="flex:0 0 auto;max-height:240px"><img src="presentation_images/cell_31_out_0.png"></div>
+      <div class="box red" style="margin-top:6px;font-size:0.82em">
+        <strong>Honest answer:</strong> No. With subsampled data, the quantum SVM shows higher variance and the gap doesn't consistently widen with scarcity. The advantage is sensitive to tuning, not automatic.
+      </div>
+    </div>
+  </div>
+  <span class="sn">6</span>
+</div>
+
+<!-- SLIDE 7: LIMITATION -->
+<div class="slide">
+  <div class="bar"></div>
+  <span class="section-label red">3. LIMITATION</span>
+  <h2>What Didn't Work?</h2>
+  <h3>Where quantum encoding failed to help, and why</h3>
+  <div class="two-col">
+    <div>
+      <p><strong>Where quantum encoding hurt or didn't help:</strong></p>
+      <ul class="b">
+        <li><strong>3 of 4 positions</strong> — Classical SVM outperformed quantum at Positions 1, 3, and 4. The quantum advantage is concentrated at Position 2 only.</li>
+        <li><strong>Learning curves</strong> — With subsampled data (25–75%), classical SVM was more stable and often better. The quantum encoding's higher dimensionality (180 vs 60) may need more data to tune properly.</li>
+        <li><strong>Higher variance</strong> — Quantum SVM predictions showed more variability across random seeds and CV folds.</li>
+      </ul>
+    </div>
+    <div>
+      <p><strong>Why these limitations exist:</strong></p>
+      <ul class="b">
+        <li><strong>Dimensionality mismatch</strong> — 180-dim quantum features with only 172 training samples means the model may overfit. Classical 60-dim features are easier to learn from.</li>
+        <li><strong>Pre-computed projections</strong> — We couldn't re-run the quantum circuit on shuffled data, so we can only test task structure, not quantum encoding directly.</li>
+        <li><strong>Single dataset</strong> — All conclusions are based on one train/test split. More robust evaluation would need repeated random splits.</li>
+      </ul>
+      <div class="box red" style="margin-top:10px">
+        <strong>Key insight:</strong> Quantum encoding helps overall (+7%) but is fragile — the advantage depends heavily on which position you look at and how you tune the model.
+      </div>
+    </div>
+  </div>
+  <span class="sn">7</span>
+</div>
+
+<!-- SLIDE 8: ATTEMPT & CONCLUSION -->
+<div class="slide">
+  <div class="bar"></div>
+  <span class="section-label amber">4. ATTEMPT & CONCLUSION</span>
+  <h2>Our Final Findings</h2>
+  <h3>Summary of our investigation and final verdict</h3>
+  <div class="two-col">
+    <div>
+      <p><strong>How we explored the limits:</strong></p>
+      <ul class="b">
+        <li><strong>Shuffle Test:</strong> Confirmed the task is highly combinatorial (30% drop).</li>
+        <li><strong>Position Analysis:</strong> Discovered the advantage is concentrated at Position 2 (+13%).</li>
+        <li><strong>Basis Test:</strong> Proved we need X, Y, and Z combined for the best result.</li>
+      </ul>
+      <p style="margin-top:16px"><strong>What's next?</strong></p>
+      <ul class="b">
+        <li>Test noise robustness to see when the advantage breaks.</li>
+        <li>Run fresh circuits on the QPU to compare with projections.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="box purple" style="margin-top:0;padding:24px;font-size:1em">
+        <strong>The Evidence-Based Claim:</strong><br><br>
+        Quantum encoding provides a <strong>real but fragile advantage</strong> (+7% F1). It works because it captures <strong>complex motif interactions</strong> that classical models miss.<br><br>
+        However, it isn't a "magic button"—it's most effective at specific positions and requires careful tuning to beat classical baselines.
+      </div>
+      <div class="box green" style="margin-top:15px;text-align:center;font-weight:600">
+        Verdict: Quantum encoding helps when the task is combinatorial.
+      </div>
+    </div>
+  </div>
+  <span class="sn">8</span>
+</div>
+
+<!-- Nav -->
+<div class="nav">
+  <button onclick="prev()">← Prev</button>
+  <span class="cnt" id="counter">1 / 8</span>
+  <button onclick="next()">Next →</button>
+</div>
+
+<script>
+let c=0;const s=document.querySelectorAll('.slide'),ct=document.getElementById('counter');
+function show(n){s[c].classList.remove('active');c=(n+s.length)%s.length;s[c].classList.add('active');ct.textContent=`${c+1} / ${s.length}`}
+function next(){show(c+1)}function prev(){show(c-1)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')next();if(e.key==='ArrowLeft')prev()});
+</script>
+</body>
+</html>
